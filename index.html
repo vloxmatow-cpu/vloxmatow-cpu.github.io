@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Бронирование | Слот 2 часа</title>
+    <meta name="description" content="Расписание с двухчасовыми слотами">
+    <meta name="theme-color" content="#1e3a5f">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #f1f5f9;
+            padding: 16px;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', sans-serif;
+            color: #0f172a;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding: 24px 20px;
+            }
+        }
+
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .header-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e293b, #2d3a4f);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .header-text .sub {
+            color: #475569;
+            margin-top: 4px;
+            font-size: 0.8rem;
+        }
+
+        .export-import-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-icon {
+            background: white;
+            border: 1px solid #cfddee;
+            padding: 8px 12px;
+            border-radius: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            line-height: 1;
+        }
+
+        .btn-icon:active {
+            transform: scale(0.96);
+            background: #eef2ff;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 14px 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: #5b6e8c;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.1;
+        }
+
+        .stat-sub {
+            font-size: 0.65rem;
+            color: #4b6b8f;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid #eef2ff;
+        }
+
+        .main-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 1024px) {
+            .main-layout {
+                display: grid;
+                grid-template-columns: 360px 1fr;
+                gap: 24px;
+                margin-bottom: 32px;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid #e9edf2;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 14px 16px;
+            background: #fefefe;
+            border-bottom: 1px solid #eef2f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .card-header h2 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .badge {
+            background: #eef2ff;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #1e40af;
+        }
+
+        .search-box {
+            padding: 12px 16px;
+            background: #fafcff;
+            border-bottom: 1px solid #eef2f6;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 30px;
+            border: 1px solid #cfddee;
+            font-size: 0.85rem;
+        }
+
+        .clients-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .client-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .client-name {
+            font-weight: 700;
+            color: #0c4e6e;
+            font-size: 0.9rem;
+        }
+
+        .client-contact {
+            font-size: 0.7rem;
+            color: #5a6e8a;
+            margin-top: 2px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 6px 8px;
+            border-radius: 30px;
+            color: #5b6e8c;
+        }
+
+        .calendar-wrapper {
+            overflow-x: auto;
+            padding: 16px;
+        }
+
+        .calendar-columns {
+            display: flex;
+            gap: 16px;
+            min-width: min-content;
+        }
+
+        .day-column {
+            background: #fafcff;
+            border-radius: 20px;
+            width: 280px;
+            flex-shrink: 0;
+            border: 1px solid #e2edf7;
+            overflow: hidden;
+        }
+
+        @media (min-width: 640px) {
+            .day-column {
+                width: 300px;
+            }
+        }
+
+        .column-header {
+            background: #f1f6fd;
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #e0eaf3;
+        }
+
+        .column-weekday {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #1f3f6e;
+        }
+
+        .column-date {
+            font-size: 0.75rem;
+            color: #557c9f;
+            margin-top: 4px;
+        }
+
+        .column-bookings {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 450px;
+            overflow-y: auto;
+        }
+
+        .booking-slot {
+            background: white;
+            border-radius: 16px;
+            padding: 10px 12px;
+            border-left: 3px solid #2c6e9e;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slot-time {
+            font-weight: 800;
+            font-size: 0.75rem;
+            background: #eef3fc;
+            padding: 3px 8px;
+            border-radius: 30px;
+            color: #0b4870;
+            white-space: nowrap;
+        }
+
+        .slot-info {
+            flex: 1;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #1e3a5f;
+        }
+
+        .delete-slot {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 6px;
+            border-radius: 30px;
+            color: #8f9eb2;
+        }
+
+        .empty-column, .empty-state {
+            text-align: center;
+            color: #98aec9;
+            padding: 30px 12px;
+            font-size: 0.8rem;
+        }
+
+        .forms-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e9edf2;
+            padding: 16px;
+        }
+
+        .form-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 14px;
+            color: #2c3e5c;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        @media (min-width: 640px) {
+            .form-grid {
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: flex-end;
+                gap: 16px;
+            }
+        }
+
+        .input-field {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .input-field label {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #5b6f8e;
+            margin-bottom: 4px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 16px;
+            border: 1px solid #cfddee;
+            background: #fff;
+            font-size: 0.85rem;
+            font-family: inherit;
+        }
+
+        .time-select-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .time-select-group select {
+            flex: 1;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #1e3a5f;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            width: 100%;
+        }
+
+        @media (min-width: 640px) {
+            .btn-primary {
+                width: auto;
+            }
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #2d3a4f;
+        }
+
+        .message {
+            font-size: 0.7rem;
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        .hidden-form {
+            display: none;
+        }
+
+        .small-btn {
+            background: none;
+            border: 1px solid #cfddee;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        /* для мобильной формы */
+        .booking-form-container {
+            transition: all 0.2s;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <div class="header">
+        <div class="header-text">
+            <h1>📅 Бронирование времени</h1>
+            <div class="sub">Слот 2 часа • Поиск клиентов • Маска телефона</div>
+        </div>
+        <div class="export-import-buttons">
+            <button class="btn-icon" id="exportBtn" title="Экспорт">📤</button>
+            <button class="btn-icon" id="importBtn" title="Импорт">📥</button>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-title">👥 КЛИЕНТЫ</div><div class="stat-value" id="totalClients">0</div><div class="stat-sub">в базе</div></div>
+        <div class="stat-card"><div class="stat-title">📆 БРОНИ</div><div class="stat-value" id="totalBookings">0</div><div class="stat-sub">всего записей</div></div>
+        <div class="stat-card"><div class="stat-title">⏳ БЛИЖАЙШЕЕ</div><div class="stat-value" id="nextBooking">—</div><div class="stat-sub">событие</div></div>
+    </div>
+
+    <div class="main-layout">
+        <!-- Клиенты -->
+        <div class="card">
+            <div class="card-header">
+                <h2>📇 Клиенты</h2>
+                <div style="display: flex; gap: 8px;">
+                    <button class="small-btn" id="showClientFormBtn">➕ Новый</button>
+                    <span class="badge" id="clientsBadge">0</span>
+                </div>
+            </div>
+            <div class="search-box">
+                <input type="text" id="clientSearch" placeholder="🔍 Поиск по имени или телефону...">
+            </div>
+            <div id="clientsList" class="clients-container"><div class="empty-state">Загрузка...</div></div>
+        </div>
+
+        <!-- Календарь + кнопка новой записи -->
+        <div class="card">
+            <div class="card-header">
+                <h2>🗓️ Расписание по дням (2 часа)</h2>
+                <div style="display: flex; gap: 8px;">
+                    <button class="small-btn" id="showBookingFormBtn">➕ Новая запись</button>
+                    <span class="badge" id="bookingsBadge">0</span>
+                </div>
+            </div>
+            <div id="calendarView" class="calendar-wrapper"><div class="empty-state">Загрузка...</div></div>
+        </div>
+    </div>
+
+    <!-- Скрытая форма клиента -->
+    <div id="clientFormModal" class="form-card hidden-form">
+        <div class="form-title"><span>✏️</span> <span id="clientFormTitle">Новый клиент</span></div>
+        <div class="form-grid">
+            <div class="input-field"><label>Имя *</label><input type="text" id="clientName" placeholder="Иванов Иван"></div>
+            <div class="input-field"><label>Телефон</label><input type="tel" id="clientPhone" placeholder="+7 XXX XXX-XX-XX" inputmode="numeric"></div>
+            <div class="input-field">
+                <button class="btn-primary" id="saveClientBtn">💾 Сохранить</button>
+                <button class="btn-primary btn-secondary" id="cancelClientFormBtn">Отмена</button>
+            </div>
+        </div>
+        <div id="clientFormMessage" class="message"></div>
+    </div>
+
+    <!-- Скрытая форма бронирования (появляется по кнопке) -->
+    <div id="bookingFormModal" class="form-card hidden-form">
+        <div class="form-title"><span>⏰</span> Новая запись (слот 2 часа)</div>
+        <div class="form-grid">
+            <div class="input-field"><label>Клиент</label>
+                <select id="bookingClientSelect">
+                    <option value="">-- Выберите клиента --</option>
+                </select>
+            </div>
+            <div class="input-field"><label>Дата</label><input type="date" id="bookingDate"></div>
+            <div class="input-field"><label>Время начала</label>
+                <div class="time-select-group">
+                    <select id="bookingHour"></select>
+                    <span>:</span>
+                    <select id="bookingMinute"></select>
+                </div>
+            </div>
+            <div class="input-field">
+                <button class="btn-primary" id="createBookingBtn">📌 Забронировать</button>
+                <button class="btn-primary btn-secondary" id="cancelBookingFormBtn">Отмена</button>
+            </div>
+        </div>
+        <div id="bookingFormMessage" class="message"></div>
+    </div>
+
+    <input type="file" id="importFileInput" accept=".json" style="display:none" />
+</div>
+
+<script>
+    // === ДАННЫЕ ===
+    const STORAGE_CLIENTS = "booking_clients";
+    const STORAGE_BOOKINGS = "booking_bookings";
+    const SLOT_DURATION = 120; // минуты (2 часа)
+
+    const defaultClients = [
+        { id: 1001, name: "Анна Смирнова", phone: "+7 901 123-45-67" },
+        { id: 1002, name: "Дмитрий Козлов", phone: "+7 912 987-65-43" },
+        { id: 1003, name: "Елена Морозова", phone: "+7 916 555-88-99" }
+    ];
+    const defaultBookings = [
+        { id: 5001, clientId: 1001, date: "2026-05-18", time: "14:00" },
+        { id: 5002, clientId: 1002, date: "2026-05-20", time: "11:00" },
+        { id: 5003, clientId: 1003, date: "2026-05-22", time: "09:00" }
+    ];
+
+    let clients = [];
+    let bookings = [];
+    let editingClientId = null;
+    let pendingBookingAfterClientSave = null;
+
+    // === МАСКА ТЕЛЕФОНА ===
+    function formatPhoneNumber(raw) {
+        let digits = raw.replace(/\D/g, '');
+        if (digits.length > 11) digits = digits.slice(0, 11);
+        let formatted = '+7';
+        if (digits.length === 0) return '+7';
+        let firstDigit = digits[0];
+        let remainingDigits;
+        if (firstDigit === '7' || firstDigit === '8') {
+            remainingDigits = digits.slice(1);
+        } else {
+            remainingDigits = digits;
+        }
+        remainingDigits = remainingDigits.slice(0, 10);
+        if (remainingDigits.length > 0) formatted += ' ' + remainingDigits.slice(0, 3);
+        if (remainingDigits.length >= 4) formatted += ' ' + remainingDigits.slice(3, 6);
+        if (remainingDigits.length >= 7) formatted += '-' + remainingDigits.slice(6, 8);
+        if (remainingDigits.length >= 9) formatted += '-' + remainingDigits.slice(8, 10);
+        return formatted.trim();
+    }
+    function initPhoneMask() {
+        const input = document.getElementById('clientPhone');
+        if (!input) return;
+        input.value = '+7';
+        input.addEventListener('input', function() {
+            let cursorPos = this.selectionStart;
+            let oldVal = this.value;
+            let newVal = formatPhoneNumber(oldVal);
+            if (oldVal !== newVal) {
+                this.value = newVal;
+                let newCursor = cursorPos + (newVal.length - oldVal.length);
+                this.setSelectionRange(newCursor, newCursor);
+            }
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' || e.key === 'Delete' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') return;
+            if (!/^\d$/.test(e.key) && e.key !== 'Tab' && e.key !== 'Enter') e.preventDefault();
+        });
+    }
+
+    // === ОСНОВНЫЕ ФУНКЦИИ ===
+    function saveData() {
+        localStorage.setItem(STORAGE_CLIENTS, JSON.stringify(clients));
+        localStorage.setItem(STORAGE_BOOKINGS, JSON.stringify(bookings));
+    }
+    function loadData() {
+        const storedClients = localStorage.getItem(STORAGE_CLIENTS);
+        const storedBookings = localStorage.getItem(STORAGE_BOOKINGS);
+        clients = storedClients ? JSON.parse(storedClients) : [...defaultClients];
+        bookings = storedBookings ? JSON.parse(storedBookings) : [...defaultBookings];
+        const activeIds = new Set(clients.map(c => c.id));
+        bookings = bookings.filter(b => activeIds.has(b.clientId));
+        saveData();
+    }
+    function getClientName(id) {
+        return clients.find(c => c.id === id)?.name || "Неизвестный";
+    }
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // Проверка: не пересекается ли новый слот (длительность 2 часа) с существующими
+    function isValidTimeSlot(date, startTime, excludeId = null) {
+        const [startHour, startMin] = startTime.split(':').map(Number);
+        const newStart = startHour * 60 + startMin;
+        const newEnd = newStart + SLOT_DURATION;
+        for (let b of bookings) {
+            if (excludeId !== null && b.id === excludeId) continue;
+            if (b.date !== date) continue;
+            const [bHour, bMin] = b.time.split(':').map(Number);
+            const bStart = bHour * 60 + bMin;
+            const bEnd = bStart + SLOT_DURATION;
+            if (newStart < bEnd && newEnd > bStart) return false;
+        }
+        return true;
+    }
+
+    function getUpcomingBooking() {
+        const now = new Date();
+        let closest = null, closestTime = Infinity;
+        for (let b of bookings) {
+            const [y,m,d] = b.date.split('-').map(Number);
+            const [h,min] = b.time.split(':').map(Number);
+            const dt = new Date(y, m-1, d, h, min);
+            if (dt > now && dt.getTime() < closestTime) {
+                closestTime = dt.getTime();
+                closest = b;
+            }
+        }
+        return closest;
+    }
+
+    // Рендер клиентов с поиском
+    function renderClients() {
+        const term = document.getElementById('clientSearch').value.toLowerCase();
+        let filtered = clients;
+        if (term) {
+            filtered = clients.filter(c => 
+                c.name.toLowerCase().includes(term) || (c.phone && c.phone.toLowerCase().includes(term))
+            );
+        }
+        const container = document.getElementById('clientsList');
+        if (!filtered.length) {
+            container.innerHTML = '<div class="empty-state">✨ Клиенты не найдены</div>';
+            return;
+        }
+        container.innerHTML = filtered.map(c => `
+            <div class="client-item">
+                <div>
+                    <div class="client-name">${escapeHtml(c.name)}</div>
+                    <div class="client-contact">${c.phone || '— телефон'}</div>
+                </div>
+                <div class="action-buttons">
+                    <button class="icon-btn edit-client" data-id="${c.id}">✏️</button>
+                    <button class="icon-btn delete-client" data-id="${c.id}">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+        document.querySelectorAll('.edit-client').forEach(btn => {
+            btn.addEventListener('click', () => startEditClient(parseInt(btn.dataset.id)));
+        });
+        document.querySelectorAll('.delete-client').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (confirm('Удалить клиента и все его брони?')) deleteClient(parseInt(btn.dataset.id));
+            });
+        });
+    }
+
+    function deleteClient(id) {
+        bookings = bookings.filter(b => b.clientId !== id);
+        clients = clients.filter(c => c.id !== id);
+        saveData();
+        if (editingClientId === id) resetClientForm();
+        fullRefresh();
+    }
+    function deleteBooking(id) {
+        bookings = bookings.filter(b => b.id !== id);
+        saveData();
+        fullRefresh();
+    }
+
+    // Календарь с отображением времени окончания
+    function renderCalendar() {
+        const container = document.getElementById('calendarView');
+        if (!bookings.length) {
+            container.innerHTML = '<div class="empty-state">📭 Нет записей. Нажмите «Новая запись».</div>';
+            return;
+        }
+        const byDate = new Map();
+        bookings.forEach(b => {
+            if (!byDate.has(b.date)) byDate.set(b.date, []);
+            byDate.get(b.date).push(b);
+        });
+        const sortedDates = Array.from(byDate.keys()).sort();
+        const weekdays = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+        const html = `
+            <div class="calendar-columns">
+                ${sortedDates.map(date => {
+                    const dayBookings = byDate.get(date).sort((a,b) => a.time.localeCompare(b.time));
+                    const dateObj = new Date(date + 'T12:00:00');
+                    const weekday = weekdays[dateObj.getDay()];
+                    return `
+                        <div class="day-column">
+                            <div class="column-header">
+                                <div class="column-weekday">${weekday}</div>
+                                <div class="column-date">${date}</div>
+                            </div>
+                            <div class="column-bookings">
+                                ${dayBookings.map(b => {
+                                    const [h,m] = b.time.split(':');
+                                    let endHour = parseInt(h) + 2;
+                                    let endMin = m;
+                                    const endTime = `${endHour.toString().padStart(2,'0')}:${endMin}`;
+                                    return `
+                                        <div class="booking-slot">
+                                            <div class="slot-time">${b.time} – ${endTime}</div>
+                                            <div class="slot-info">${escapeHtml(getClientName(b.clientId))}</div>
+                                            <button class="delete-slot" data-id="${b.id}">✖</button>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+        container.innerHTML = html;
+        document.querySelectorAll('.delete-slot').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (confirm('Отменить бронирование?')) deleteBooking(parseInt(btn.dataset.id));
+            });
+        });
+    }
+
+    // === ФОРМА КЛИЕНТА ===
+    function showClientForm(editMode = false) {
+        document.getElementById('clientFormModal').classList.remove('hidden-form');
+        if (!editMode) resetClientForm();
+        const phoneInput = document.getElementById('clientPhone');
+        if (phoneInput && phoneInput.value.trim() === '') phoneInput.value = '+7';
+    }
+    function hideClientForm() {
+        document.getElementById('clientFormModal').classList.add('hidden-form');
+        resetClientForm();
+    }
+    function saveClient() {
+        const name = document.getElementById('clientName').value.trim();
+        if (!name) { showClientFormMessage('Введите имя', true); return; }
+        let phone = document.getElementById('clientPhone').value.trim();
+        if (phone && !phone.startsWith('+7')) phone = '+7' + phone.replace(/\D/g, '');
+        if (phone === '+7') phone = '';
+        let savedId = null;
+        if (editingClientId) {
+            const idx = clients.findIndex(c => c.id === editingClientId);
+            if (idx !== -1) {
+                clients[idx] = { ...clients[idx], name, phone };
+                savedId = editingClientId;
+                saveData();
+                hideClientForm();
+                fullRefresh();
+                showClientFormMessage('Клиент обновлён', false);
+            }
+        } else {
+            const newId = Date.now() + Math.floor(Math.random() * 10000);
+            clients.push({ id: newId, name, phone });
+            savedId = newId;
+            saveData();
+            hideClientForm();
+            fullRefresh();
+            showClientFormMessage('Клиент добавлен', false);
+        }
+        if (pendingBookingAfterClientSave && savedId) {
+            const { date, time } = pendingBookingAfterClientSave;
+            if (date && time && isValidTimeSlot(date, time)) {
+                const newId = Date.now() + Math.floor(Math.random() * 5000);
+                bookings.push({ id: newId, clientId: savedId, date, time });
+                saveData();
+                fullRefresh();
+                showBookingFormMessage(`✅ Забронировано для ${getClientName(savedId)} на ${date} ${time} – ${addHours(time,2)}`, false);
+            } else if (date && time) {
+                showBookingFormMessage(`⚠️ Слот ${date} ${time} занят или не проходит по интервалу (2ч).`, true);
+            }
+            pendingBookingAfterClientSave = null;
+            const select = document.getElementById('bookingClientSelect');
+            if (select) Array.from(select.options).forEach(opt => { if (opt.value == savedId) opt.selected = true; });
+        }
+    }
+    function startEditClient(id) {
+        const client = clients.find(c => c.id === id);
+        if (!client) return;
+        editingClientId = id;
+        document.getElementById('clientName').value = client.name;
+        document.getElementById('clientPhone').value = client.phone || '+7';
+        document.getElementById('clientFormTitle').innerHTML = '✏️ Редактирование';
+        showClientForm(true);
+        applyPhoneMaskNow();
+    }
+    function applyPhoneMaskNow() {
+        const inp = document.getElementById('clientPhone');
+        if (inp) inp.value = formatPhoneNumber(inp.value);
+    }
+    function resetClientForm() {
+        editingClientId = null;
+        document.getElementById('clientName').value = '';
+        document.getElementById('clientPhone').value = '+7';
+        document.getElementById('clientFormTitle').innerHTML = '➕ Новый клиент';
+        document.getElementById('clientFormMessage').innerText = '';
+    }
+    function showClientFormMessage(msg, isError) {
+        const el = document.getElementById('clientFormMessage');
+        el.innerText = msg;
+        el.style.color = isError ? '#be5e2e' : '#2c7840';
+        setTimeout(() => el.innerText = '', 2000);
+    }
+
+    // === ФОРМА БРОНИРОВАНИЯ (теперь скрыта) ===
+    function showBookingForm() {
+        document.getElementById('bookingFormModal').classList.remove('hidden-form');
+        const today = new Date().toISOString().slice(0,10);
+        const dateInput = document.getElementById('bookingDate');
+        dateInput.min = today;
+        if (!dateInput.value) dateInput.value = today;
+        document.getElementById('bookingFormMessage').innerText = '';
+        updateBookingSelects();
+    }
+    function hideBookingForm() {
+        document.getElementById('bookingFormModal').classList.add('hidden-form');
+        document.getElementById('bookingFormMessage').innerText = '';
+    }
+    function updateBookingSelects() {
+        const select = document.getElementById('bookingClientSelect');
+        select.innerHTML = '<option value="">-- Выберите клиента --</option>';
+        clients.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = `${c.name} ${c.phone || ''}`;
+            select.appendChild(opt);
+        });
+    }
+    function getSelectedTime() {
+        const hour = document.getElementById('bookingHour').value;
+        const minute = document.getElementById('bookingMinute').value;
+        if (!hour || !minute) return null;
+        return `${hour.padStart(2,'0')}:${minute.padStart(2,'0')}`;
+    }
+    function addHours(time, hours) {
+        let [h, m] = time.split(':').map(Number);
+        let newH = h + hours;
+        return `${newH.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
+    }
+    function addBooking() {
+        let clientId = parseInt(document.getElementById('bookingClientSelect').value);
+        const date = document.getElementById('bookingDate').value;
+        const time = getSelectedTime();
+        if (!date || !time) { showBookingFormMessage('⚠️ Укажите дату и время', true); return; }
+        if (isNaN(clientId)) {
+            pendingBookingAfterClientSave = { date, time };
+            hideBookingForm();
+            showClientForm(false);
+            showBookingFormMessage('➕ Сначала создайте клиента, затем бронирование добавится автоматически', false);
+            return;
+        }
+        const selectedDate = new Date(`${date}T${time}`);
+        if (selectedDate < new Date()) { showBookingFormMessage('⛔ Нельзя в прошлом', true); return; }
+        if (!isValidTimeSlot(date, time)) {
+            showBookingFormMessage('🚫 Этот слот пересекается с другим (2 часа). Выберите другое время.', true);
+            return;
+        }
+        const newId = Date.now() + Math.floor(Math.random() * 5000);
+        bookings.push({ id: newId, clientId, date, time });
+        saveData();
+        showBookingFormMessage(`✅ Забронировано для ${getClientName(clientId)} на ${date} ${time} – ${addHours(time,2)}`, false);
+        fullRefresh();
+        hideBookingForm();
+        setTimeout(() => document.getElementById('bookingFormMessage').innerText = '', 3000);
+    }
+    function showBookingFormMessage(msg, isError) {
+        const el = document.getElementById('bookingFormMessage');
+        el.innerText = msg;
+        el.style.color = isError ? '#be5e2e' : '#2c7840';
+        setTimeout(() => { if (el.innerText === msg) el.innerText = ''; }, 3000);
+    }
+
+    // === ЭКСПОРТ/ИМПОРТ ===
+    function exportData() {
+        const data = { version: "2.0", exportDate: new Date().toISOString(), clients, bookings };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const a = document.createElement('a');
+        a.download = `booking_backup_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
+        a.href = URL.createObjectURL(blob);
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showBookingFormMessage(`📁 Экспорт: ${clients.length} клиентов, ${bookings.length} броней`, false);
+    }
+    function importData(file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (!imported.clients || !imported.bookings) throw new Error("Неверный формат");
+                for (let c of imported.clients) if (!c.id || !c.name) throw new Error("Клиент без id/name");
+                for (let b of imported.bookings) if (!b.id || !b.clientId || !b.date || !b.time) throw new Error("Бронь без полей");
+                const ids = new Set(imported.clients.map(c => c.id));
+                for (let b of imported.bookings) if (!ids.has(b.clientId)) throw new Error(`Бронь #${b.id} ссылается на несуществующего клиента`);
+                if (confirm(`Заменить данные? Сейчас клиентов: ${clients.length}, броней: ${bookings.length}`)) {
+                    clients = imported.clients;
+                    bookings = imported.bookings;
+                    saveData();
+                    fullRefresh();
+                    showBookingFormMessage(`✅ Импорт: ${clients.length} клиентов, ${bookings.length} броней`, false);
+                }
+            } catch (err) {
+                showBookingFormMessage(`❌ Ошибка: ${err.message}`, true);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // === ИНИЦИАЛИЗАЦИЯ И ОБНОВЛЕНИЯ ===
+    function initTimeSelects() {
+        const hourSel = document.getElementById('bookingHour');
+        const minSel = document.getElementById('bookingMinute');
+        hourSel.innerHTML = ''; minSel.innerHTML = '';
+        for (let h = 0; h <= 23; h++) {
+            const opt = document.createElement('option');
+            opt.value = h.toString().padStart(2,'0');
+            opt.textContent = opt.value;
+            hourSel.appendChild(opt);
+        }
+        for (let m = 0; m < 60; m += 5) {
+            const opt = document.createElement('option');
+            opt.value = m.toString().padStart(2,'0');
+            opt.textContent = opt.value;
+            minSel.appendChild(opt);
+        }
+        hourSel.value = '10';
+        minSel.value = '00';
+    }
+    function updateDashboard() {
+        document.getElementById('totalClients').innerText = clients.length;
+        document.getElementById('totalBookings').innerText = bookings.length;
+        document.getElementById('clientsBadge').innerText = clients.length;
+        document.getElementById('bookingsBadge').innerText = bookings.length;
+        const upcoming = getUpcomingBooking();
+        const nextSpan = document.getElementById('nextBooking');
+        if (upcoming) {
+            nextSpan.innerHTML = `${upcoming.date} ${upcoming.time}<span style="font-size:0.6rem; display:block;">${escapeHtml(getClientName(upcoming.clientId))}</span>`;
+        } else {
+            nextSpan.innerHTML = '—';
+        }
+    }
+    function fullRefresh() {
+        updateDashboard();
+        renderClients();
+        renderCalendar();
+        updateBookingSelects();
+        const today = new Date().toISOString().slice(0,10);
+        const dateInput = document.getElementById('bookingDate');
+        if (dateInput) dateInput.min = today;
+        if (dateInput && !dateInput.value) dateInput.value = today;
+    }
+
+    // === ЗАПУСК ===
+    window.addEventListener('DOMContentLoaded', () => {
+        loadData();
+        initTimeSelects();
+        initPhoneMask();
+        fullRefresh();
+
+        document.getElementById('showClientFormBtn').onclick = () => { resetClientForm(); showClientForm(false); };
+        document.getElementById('cancelClientFormBtn').onclick = () => { hideClientForm(); pendingBookingAfterClientSave = null; };
+        document.getElementById('saveClientBtn').onclick = saveClient;
+
+        document.getElementById('showBookingFormBtn').onclick = () => { showBookingForm(); };
+        document.getElementById('cancelBookingFormBtn').onclick = () => { hideBookingForm(); };
+        document.getElementById('createBookingBtn').onclick = addBooking;
+
+        document.getElementById('exportBtn').onclick = exportData;
+        document.getElementById('importBtn').onclick = () => document.getElementById('importFileInput').click();
+        document.getElementById('importFileInput').onchange = (e) => {
+            if (e.target.files[0]) importData(e.target.files[0]);
+            e.target.value = '';
+        };
+        document.getElementById('clientSearch').addEventListener('input', () => renderClients());
+    });
+</script>
+</body>
+</html>
